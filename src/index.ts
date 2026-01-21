@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 import { execSync } from 'node:child_process'
+import readline from 'node:readline/promises'
+import { stdin as input, stdout as output } from 'node:process'
 
 function isInsideGitRepo(): boolean {
   try {
@@ -91,6 +93,8 @@ function mapChangeTypeToPrefix(changeType: string): string {
   }
 }
 
+const prefix = mapChangeTypeToPrefix(changeType)
+
 function generateCommitSubject(prefix: string, files: string[]): string {
   if (files.length === 1) {
     return `${prefix}: update ${files[0]}`
@@ -98,4 +102,42 @@ function generateCommitSubject(prefix: string, files: string[]): string {
   return `${prefix}: update multiple files`
 }
 
-console.log(generateCommitSubject(mapChangeTypeToPrefix(changeType), files))
+const subject = generateCommitSubject(prefix, files)
+
+async function askForConfirmation(): Promise<boolean> {
+  const rl = readline.createInterface({ input, output })
+
+  const answer = await rl.question(`Commit with this message? (y/n) `)
+
+  rl.close()
+
+  return answer.trim().toLowerCase() === 'y'
+}
+
+function runGitCommit(message: string): void {
+  execSync(`git commit -m "${message.replace(/"/g, '\\"')}"`, {
+    stdio: 'inherit',
+  })
+}
+
+if (!process.stdin.isTTY) {
+  console.error('Error: interactive terminal required')
+  process.exit(1)
+}
+
+async function main() {
+  console.log('Suggested commit message:')
+  console.log(subject)
+  console.log('')
+
+  const confirmed = await askForConfirmation()
+
+  if (!confirmed) {
+    console.log('Aborted.')
+    process.exit(0)
+  }
+
+  runGitCommit(subject)
+}
+
+main()
