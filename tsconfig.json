@@ -18,6 +18,8 @@
     "sourceMap": true,
     "noEmitOnError": true,
 
+    "forceConsistentCasingInFileNames": true,
+
     "types": ["node"]
   },
   "include": ["src"]
