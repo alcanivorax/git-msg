@@ -91,5 +91,11 @@ function mapChangeTypeToPrefix(changeType: string): string {
   }
 }
 
-console.log('Detected change type: ', detectChangeType(files))
-console.log('Suggested commit prefix: ', mapChangeTypeToPrefix(changeType))
+function generateCommitSubject(prefix: string, files: string[]): string {
+  if (files.length === 1) {
+    return `${prefix}: update ${files[0]}`
+  }
+  return `${prefix}: update multiple files`
+}
+
+console.log(generateCommitSubject(mapChangeTypeToPrefix(changeType), files))
