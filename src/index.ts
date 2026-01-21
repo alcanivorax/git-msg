@@ -18,4 +18,19 @@ if (!isInsideGitRepo()) {
   process.exit(1)
 }
 
-console.log('git-msg running inside a git repo')
+function getStagedDiff(): string {
+  try {
+    return execSync('git diff --cached', {
+      encoding: 'utf8',
+    })
+  } catch {
+    return ''
+  }
+}
+
+const diff = getStagedDiff().trim()
+
+if (!diff) {
+  console.error('No staged changed found.')
+  process.exit(1)
+}
