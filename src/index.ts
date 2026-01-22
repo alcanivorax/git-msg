@@ -4,8 +4,8 @@ import { handleCliFlags } from './cli/options.js'
 import { ensureGitRepo, ensureStagedChanges } from './git/status.js'
 import { getStagedFiles } from './git/files.js'
 import { detectChangeType, mapChangeTypeToPrefix } from './logic/classify.js'
-import { generateCommitSubject } from './logic/commit.js'
-import { printCommitMessage } from './output/print.js'
+import { generateCommitSubject } from './logic/message.js'
+import { confirmAndCommit } from './output/print.js'
 
 async function main(): Promise<void> {
   handleCliFlags()
@@ -21,7 +21,7 @@ async function main(): Promise<void> {
 
   const subject = generateCommitSubject(prefix, files)
 
-  printCommitMessage(subject)
+  confirmAndCommit(subject)
 }
 
 main()

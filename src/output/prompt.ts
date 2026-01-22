@@ -1,4 +1,3 @@
-import { execSync } from 'node:child_process'
 import readline from 'node:readline/promises'
 import { stdin as input, stdout as output } from 'node:process'
 
@@ -10,10 +9,4 @@ export async function askForConfirmation(): Promise<boolean> {
   rl.close()
 
   return answer.trim().toLowerCase() === 'y'
-}
-
-export function runGitCommit(message: string): void {
-  execSync(`git commit -m "${message.replace(/"/g, '\\"')}"`, {
-    stdio: 'inherit',
-  })
 }

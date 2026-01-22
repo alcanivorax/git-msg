@@ -1,12 +1,12 @@
 import { askForConfirmation } from './prompt.js'
-import { runGitCommit } from './prompt.js'
+import { runGitCommit } from '../git/commit.js'
 
-if (!process.stdin.isTTY) {
-  console.error('Error: interactive terminal required')
-  process.exit(1)
-}
+export async function confirmAndCommit(subject: string) {
+  if (!process.stdin.isTTY) {
+    console.error('Error: interactive terminal required')
+    process.exit(1)
+  }
 
-export async function printCommitMessage(subject: string) {
   console.log('Suggested commit message:')
   console.log(subject)
   console.log('')
