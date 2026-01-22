@@ -3,6 +3,45 @@
 import { execSync } from 'node:child_process'
 import readline from 'node:readline/promises'
 import { stdin as input, stdout as output } from 'node:process'
+import pkg from '../package.json' with { type: 'json' }
+
+const args = process.argv.slice(2)
+// i.e git msg help / version
+
+function printVersion(): void {
+  console.log(`${pkg.name} version ${pkg.version}`)
+}
+
+function printHelp(): void {
+  console.log(`
+git-msg — generate conventional commit messages
+
+Usage:
+  git msg [options]
+
+Options:
+  -h, --help        Show help
+  -v, --version     Show version
+
+Description:
+  Run inside a git repository with staged changes
+  to generate a conventional commit message.
+`)
+}
+
+if (args.includes('help') || args.includes('-h') || args.includes('--help')) {
+  printHelp()
+  process.exit(0)
+}
+
+if (
+  args.includes('version') ||
+  args.includes('-v') ||
+  args.includes('--version')
+) {
+  printVersion()
+  process.exit(0)
+}
 
 function isInsideGitRepo(): boolean {
   try {
