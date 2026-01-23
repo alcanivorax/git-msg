@@ -13,7 +13,7 @@ Usage:
   git msg [options]
 
 Options:
-  -h, --help        Show help
+  -h, help          Show help
   -v, --version     Show version
 
 Description:

@@ -1,8 +1,17 @@
 // src/git/commit.ts
-import { execSync } from 'node:child_process'
+
+import { spawnSync } from 'node:child_process'
 
 export function runGitCommit(message: string): void {
-  execSync(`git commit -m "${message.replace(/"/g, '\\"')}"`, {
+  const result = spawnSync('git', ['commit', '-m', message], {
     stdio: 'inherit',
   })
+
+  if (result.error) {
+    throw result.error
+  }
+
+  if (result.status !== 0) {
+    process.exit(result.status ?? 1)
+  }
 }

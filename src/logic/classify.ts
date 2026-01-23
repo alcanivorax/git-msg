@@ -1,25 +1,30 @@
 // src/analyze/classify.ts
 
-export function detectChangeType(files: string[]): string {
-  const hasCode = files.some(
-    (f) => f.startsWith('src/') && (f.endsWith('.ts') || f.endsWith('.js'))
-  )
+import { FileStatus } from '../git/files.js'
+
+export function detectChangeType(stagedFiles: FileStatus[]): string {
+  const hasCode = stagedFiles.map((f) => {
+    f.path.startsWith('src/') &&
+      (f.path.endsWith('.ts') || f.path.endsWith('.js'))
+  })
   if (hasCode) return 'code'
 
-  const hasDocs = files.some((f) => f.startsWith('docs/') || f.endsWith('.md'))
+  const hasDocs = stagedFiles.map(
+    (f) => f.path.startsWith('docs/') || f.path.endsWith('.md')
+  )
   if (hasDocs) return 'docs'
 
-  const hasConfig = files.some(
+  const hasConfig = stagedFiles.map(
     (f) =>
-      f === 'package.json' ||
-      f === 'pnpm-lock.yaml' ||
-      f === 'package-lock.json' ||
-      f === 'yarn.lock' ||
-      f === 'tsconfig.json' ||
-      f.endsWith('.config.js') ||
-      f.endsWith('.config.ts') ||
-      f.startsWith('.prettierc') ||
-      f.startsWith('.eslintrc')
+      f.path === 'package.json' ||
+      f.path === 'pnpm-lock.yaml' ||
+      f.path === 'package-lock.json' ||
+      f.path === 'yarn.lock' ||
+      f.path === 'tsconfig.json' ||
+      f.path.endsWith('.config.js') ||
+      f.path.endsWith('.config.ts') ||
+      f.path.startsWith('.prettierc') ||
+      f.path.startsWith('.eslintrc')
   )
   if (hasConfig) return 'config'
 
@@ -38,3 +43,7 @@ export function mapChangeTypeToPrefix(changeType: string): string {
       return 'chore'
   }
 }
+
+// New prefix logic
+
+export function detectCommitType(stagedFiles: FileStatus) {}

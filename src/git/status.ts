@@ -1,6 +1,7 @@
 // src/git/status.ts
 
 import { execSync } from 'node:child_process'
+import { getStagedFilesWithStatus } from './files.js'
 
 function isInsideGitRepo(): boolean {
   try {
@@ -13,16 +14,6 @@ function isInsideGitRepo(): boolean {
   }
 }
 
-function getStagedDiff(): string {
-  try {
-    return execSync('git diff --cached', {
-      encoding: 'utf8',
-    }).trim()
-  } catch {
-    return ''
-  }
-}
-
 export function ensureGitRepo(): void {
   if (!isInsideGitRepo()) {
     console.error('Error: not inside a git repository')
@@ -31,9 +22,9 @@ export function ensureGitRepo(): void {
 }
 
 export function ensureStagedChanges(): void {
-  const diff = getStagedDiff()
+  const stagedFiles = getStagedFilesWithStatus()
 
-  if (!diff) {
+  if (stagedFiles.length === 0) {
     console.error('No staged changes found.')
     process.exit(1)
   }

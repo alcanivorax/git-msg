@@ -2,10 +2,10 @@
 
 import { handleCliFlags } from './cli/options.js'
 import { ensureGitRepo, ensureStagedChanges } from './git/status.js'
-import { getStagedFiles } from './git/files.js'
+import { getStagedFilesWithStatus } from './git/files.js'
 import { detectChangeType, mapChangeTypeToPrefix } from './logic/classify.js'
 import { generateCommitSubject } from './logic/message.js'
-import { confirmAndCommit } from './output/print.js'
+import { listenForChoice } from './output/print.js'
 
 async function main(): Promise<void> {
   handleCliFlags()
@@ -13,15 +13,15 @@ async function main(): Promise<void> {
   ensureGitRepo()
   ensureStagedChanges()
 
-  const files = getStagedFiles()
+  const stagedFiles = getStagedFilesWithStatus()
 
-  const changeType = detectChangeType(files)
+  const changeType = detectChangeType(stagedFiles)
 
   const prefix = mapChangeTypeToPrefix(changeType)
 
-  const subject = generateCommitSubject(prefix, files)
+  const subject = generateCommitSubject(prefix, stagedFiles)
 
-  confirmAndCommit(subject)
+  await listenForChoice(subject)
 }
 
 main()
