@@ -5,6 +5,7 @@ import { ensureGitRepo, ensureStagedChanges } from './git/status.js'
 import { getStagedFilesWithStatus } from './git/files.js'
 import {
   detectChangeCategory,
+  detectCommitVerb,
   mapChangeCategoryToCommitType,
 } from './logic/classify.js'
 import { generateCommitSubject } from './logic/message.js'
@@ -20,11 +21,13 @@ async function main(): Promise<void> {
 
   const changeCategory = detectChangeCategory(stagedFiles)
 
-  const prefix = mapChangeCategoryToCommitType(changeCategory)
+  const commitType = mapChangeCategoryToCommitType(changeCategory)
 
-  const subject = generateCommitSubject(prefix, stagedFiles)
+  const commitVerb = detectCommitVerb(stagedFiles)
+
+  const subject = generateCommitSubject(commitType, commitVerb, stagedFiles)
 
   await listenForChoice(subject)
 }
 
-main()
+await main()

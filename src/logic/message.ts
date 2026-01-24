@@ -3,11 +3,12 @@
 import { FileStatus } from '../git/files.js'
 
 export function generateCommitSubject(
-  prefix: string,
+  type: string,
+  verb: string,
   files: FileStatus[]
 ): string {
   if (files.length === 1) {
-    return `${prefix}: update ${files[0].path}`
+    return `${type}: ${verb} ${files[0].path}`
   }
-  return `${prefix}: update multiple files`
+  return `${type}: ${verb} multiple files`
 }

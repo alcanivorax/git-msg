@@ -58,12 +58,12 @@ export function getStagedFileMagnitude(): StagedStats {
   }
 }
 
-export function getStagedDiff(): string {
-  try {
-    return execSync('git diff --cached', {
-      encoding: 'utf8',
-    })
-  } catch {
-    return ''
-  }
-}
+// export function getStagedDiff(): string {
+//   try {
+//     return execSync('git diff --cached', {
+//       encoding: 'utf8',
+//     })
+//   } catch {
+//     return ''
+//   }
+// }

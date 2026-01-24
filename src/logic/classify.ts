@@ -180,6 +180,19 @@ export function mapChangeCategoryToCommitType(changeCategory: string): string {
   }
 }
 
+// detect verb
+export function detectCommitVerb(stagedFiles: FileStatus[]): string {
+  const statuses = new Set(stagedFiles.map((f) => f.status))
+
+  // order matter
+  if (statuses.has('R')) return 'rename'
+  if (statuses.has('A')) return 'add'
+  if (statuses.has('D')) return 'remove'
+  if (statuses.has('M')) return 'update'
+  if (statuses.has('C')) return 'add'
+  return 'handle'
+}
+
 // New prefix logic
 
 /*
