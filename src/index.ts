@@ -3,7 +3,10 @@
 import { handleCliFlags } from './cli/options.js'
 import { ensureGitRepo, ensureStagedChanges } from './git/status.js'
 import { getStagedFilesWithStatus } from './git/files.js'
-import { detectChangeType, mapChangeTypeToPrefix } from './logic/classify.js'
+import {
+  detectChangeCategory,
+  mapChangeCategoryToCommitType,
+} from './logic/classify.js'
 import { generateCommitSubject } from './logic/message.js'
 import { listenForChoice } from './output/print.js'
 
@@ -15,9 +18,9 @@ async function main(): Promise<void> {
 
   const stagedFiles = getStagedFilesWithStatus()
 
-  const changeType = detectChangeType(stagedFiles)
+  const changeCategory = detectChangeCategory(stagedFiles)
 
-  const prefix = mapChangeTypeToPrefix(changeType)
+  const prefix = mapChangeCategoryToCommitType(changeCategory)
 
   const subject = generateCommitSubject(prefix, stagedFiles)
 
