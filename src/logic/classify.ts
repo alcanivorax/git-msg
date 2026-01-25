@@ -2,6 +2,12 @@
 
 import { FileStatus, StagedStats } from '../git/files.js'
 
+/*
+    ===============================================
+    =================== Type ======================
+    ===============================================
+*/
+
 type ChangeCategory =
   | 'code'
   | 'tests'
@@ -231,6 +237,12 @@ export function mapChangeCategoryToCommitType(changeCategory: string): string {
   }
 }
 
+/*
+    ===============================================
+    =================== Verb ======================
+    ===============================================
+*/
+
 export function detectCommitVerb(
   stagedFiles: FileStatus[],
   stats: StagedStats
@@ -259,6 +271,12 @@ export function detectCommitVerb(
 }
 // Note:  const status = rawStatus[0] // handles R100, C75, etc.
 
+/*
+    ===============================================
+    ================== Object =====================
+    ===============================================
+*/
+
 export function detectCommitObject(stagedFiles: FileStatus[]): string {
   if (stagedFiles.length === 0) return 'project' // Guard against empty input
 
@@ -273,7 +291,7 @@ export function detectCommitObject(stagedFiles: FileStatus[]): string {
   // If no meaningful directories found, fall back early
   if (domains.length === 0) return 'project'
 
-  const counts = count(domains)
+  const counts = superCount(domains)
   const [top, freq] = mostCommon(counts)
 
   // Majority threshold: 60% of files in same domain
@@ -370,7 +388,7 @@ export function applyObjectSuffix(domain: string): string {
   return suffix ? `${domain} ${suffix}` : `${domain} module`
 }
 
-export function count<T>(values: T[]): Map<T, number> {
+export function superCount<T>(values: T[]): Map<T, number> {
   // Generic for reusability
   const map = new Map<T, number>()
   for (const v of values) {
@@ -458,6 +476,12 @@ export function detectSuffixFromPattern(path: string): ObjectSuffix | undefined 
   }
 }
 
+*/
+
+/*
+    ===============================================
+    ================ Qualifier ====================
+    ===============================================
 */
 
 export function detectCommitQualifier(
