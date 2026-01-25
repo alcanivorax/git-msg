@@ -1,5 +1,7 @@
 ## Installation
 
+<br />
+
 ### Local development
 
 ```bash
@@ -12,16 +14,6 @@ Then use it as:
 
 ```bash
 git msg
-```
-
-### Why `git msg` works
-
-Git treats any executable named `git-<command>` as a subcommand.
-
-So:
-
-```
-git-msg  →  git msg
 ```
 
 ---
