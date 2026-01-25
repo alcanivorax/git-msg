@@ -38,11 +38,11 @@ describe('detectCommitVerb', () => {
     expect(detectCommitVerb(files, stats(100, 50))).toBe('update')
   })
 
-  it('returns update for mixed operations', () => {
+  it('returns refactor for mixed operations', () => {
     const files = [
       { path: 'src/a.ts', status: 'M' as const },
       { path: 'src/b.ts', status: 'M' as const },
     ]
-    expect(detectCommitVerb(files, stats(10, 5))).toBe('update')
+    expect(detectCommitVerb(files, stats(10, 5))).toBe('refactor')
   })
 })

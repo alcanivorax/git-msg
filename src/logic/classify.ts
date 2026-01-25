@@ -38,11 +38,11 @@ export function detectChangeCategory(
       path.startsWith('models/') ||
       path.startsWith('views/') ||
       path.startsWith('routes/') ||
-      path.startsWith('middleware/') ||
-      // File extensions for source code
-      /\.(ts|tsx|js|jsx|py|go|rs|java|cpp|c|h|hpp|cs|php|rb|kt|swift|scala|clj)$/.test(
-        path
-      )
+      path.startsWith('middleware/')
+      // // File extensions for source code
+      // /\.(ts|tsx|js|jsx|py|go|rs|java|cpp|c|h|hpp|cs|php|rb|kt|swift|scala|clj)$/.test(
+      //   path
+      // )
     )
   })
 
