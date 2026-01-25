@@ -433,27 +433,3 @@ export function detectCommitQualifier(
 
   return null
 }
-
-// New prefix logic
-
-/*
-  commit message
-  <type>: <verb> <object> [qualifier]
-  add auth module
-  handle empty config
-  update commit prompt
-  remove unused config
-  simplify commit flow
-
-
-  | Situation                  | Verb                    |
-| -------------------------- | ----------------------- |
-| New file(s)                | `add`                   |
-| Logic change, behavior fix | `handle`                |
-| Bug fix                    | `fix`                   |
-| Rename / move              | `rename`                |
-| Pure refactor              | `refactor` / `simplify` |
-| Config change              | `update`                |
-| Removal                    | `remove`                |
-
-*/
