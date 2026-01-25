@@ -13,14 +13,20 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
 
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "noEmitOnError": true,
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false,
 
+    "noEmitOnError": true,
     "forceConsistentCasingInFileNames": true,
 
     "types": ["node"]
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": [
+    "**/__tests__/**",
+    "**/__test__/**",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ]
 }
