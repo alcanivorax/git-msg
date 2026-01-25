@@ -344,16 +344,21 @@ export function mostCommon<T>(counts: Map<T, number>): [T, number] | [null, 0] {
 }
 
 export function humanizeFile(filePath: string): string {
-  // Renamed param to avoid confusion
   const normalized = filePath.replace(/\\/g, '/')
   const file = normalized.split('/').pop() ?? normalized
 
-  return file
-    .replace(/\.[^/.]+$/, '') // Remove extension
-    .replace(/[-_.]/g, ' ') // Added dot for cases like 'file.test'
-    .replace(/\s+/g, ' ') // Normalize multiple spaces
-    .trim() // Clean edges
-    .toLowerCase()
+  const name = file.replace(/\.[^/.]+$/, '') // remove extension
+
+  return (
+    name
+      // split camelCase / PascalCase
+      .replace(/([a-z])([A-Z])/g, '$1 $2')
+      // split snake_case / kebab-case / dot.case
+      .replace(/[-_.]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLowerCase()
+  )
 }
 
 const GENERIC_DIRS = new Set([
@@ -388,6 +393,8 @@ export function extractMeaningfulDir(filePath: string): string | null {
 
 // todo: future addition
 /*
+
+fallback
 const SUFFIX_PATTERNS: Array<[RegExp, ObjectSuffix]> = [
   [/\.test\.|\.spec\./, 'tests'],
   [/\.config\.|\.rc$/, 'config'],
