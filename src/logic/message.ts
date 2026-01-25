@@ -1,14 +1,14 @@
 // src/generate/commit.ts
 
-import { FileStatus } from '../git/files.js'
-
 export function generateCommitSubject(
   type: string,
   verb: string,
-  files: FileStatus[]
+  object: string,
+  qualifier: string | null
 ): string {
-  if (files.length === 1) {
-    return `${type}: ${verb} ${files[0].path}`
-  }
-  return `${type}: ${verb} multiple files`
+  const message = qualifier
+    ? `${verb} ${object} ${qualifier}`
+    : `${verb} ${object}`
+
+  return `${type}: ${message}`
 }

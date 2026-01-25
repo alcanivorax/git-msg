@@ -2,9 +2,14 @@
 
 import { handleCliFlags } from './cli/options.js'
 import { ensureGitRepo, ensureStagedChanges } from './git/status.js'
-import { getStagedFilesWithStatus } from './git/files.js'
+import {
+  getStagedFileMagnitude,
+  getStagedFilesWithStatus,
+} from './git/files.js'
 import {
   detectChangeCategory,
+  detectCommitObject,
+  detectCommitQualifier,
   detectCommitVerb,
   mapChangeCategoryToCommitType,
 } from './logic/classify.js'
@@ -19,13 +24,24 @@ async function main(): Promise<void> {
 
   const stagedFiles = getStagedFilesWithStatus()
 
+  const stagedFileStats = getStagedFileMagnitude()
+
   const changeCategory = detectChangeCategory(stagedFiles)
 
   const commitType = mapChangeCategoryToCommitType(changeCategory)
 
-  const commitVerb = detectCommitVerb(stagedFiles)
+  const commitVerb = detectCommitVerb(stagedFiles, stagedFileStats)
 
-  const subject = generateCommitSubject(commitType, commitVerb, stagedFiles)
+  const commitObject = detectCommitObject(stagedFiles)
+
+  const commitQualifier = detectCommitQualifier(stagedFiles, stagedFileStats)
+
+  const subject = generateCommitSubject(
+    commitType,
+    commitVerb,
+    commitObject,
+    commitQualifier
+  )
 
   await listenForChoice(subject)
 }

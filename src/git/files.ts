@@ -7,7 +7,7 @@ export type FileStatus = {
   path: string
 }
 
-type StagedStats = {
+export type StagedStats = {
   files: number
   insertions: number
   deletions: number
