@@ -9,156 +9,207 @@ type ChangeCategory =
   | 'ci'
   | 'config'
   | 'build'
+  | 'styles'
   | 'chore'
+
+// Priority order for category precedence (higher index = higher priority)
+const CATEGORY_PRIORITY: ChangeCategory[] = [
+  'code',
+  'styles',
+  'tests',
+  'docs',
+  'config',
+  'build',
+  'ci',
+]
+
+function classifyFile(path: string): ChangeCategory {
+  const p = path.replace(/\\/g, '/').toLowerCase()
+  const filename = p.split('/').pop() ?? ''
+
+  // CI/CD (highest priority - infrastructure)
+  if (p.startsWith('.github/workflows/') || p.startsWith('.github/actions/'))
+    return 'ci'
+  if (p.includes('/.gitlab-ci') || filename === '.gitlab-ci.yml') return 'ci'
+  if (p.includes('/.circleci/')) return 'ci'
+  if (p.includes('/azure-pipelines') || filename.startsWith('azure-pipelines'))
+    return 'ci'
+  if (p.includes('/jenkinsfile') || filename === 'jenkinsfile') return 'ci'
+  if (filename === '.travis.yml' || filename === 'appveyor.yml') return 'ci'
+  if (filename.startsWith('.drone') || filename === 'bitbucket-pipelines.yml')
+    return 'ci'
+
+  // Build system
+  if (p.includes('/dockerfile') || p.endsWith('.dockerfile')) return 'build'
+  if (p.includes('/makefile') || p.includes('/cmake') || p.includes('/bazel'))
+    return 'build'
+  if (p.includes('/build/') || p.includes('/dist/')) return 'build'
+  if (filename.startsWith('build.') || filename === 'webpack.config.js')
+    return 'build'
+  if (
+    filename === 'vite.config.js' ||
+    filename === 'rollup.config.js' ||
+    filename === 'esbuild.config.js'
+  )
+    return 'build'
+  if (filename.startsWith('docker-compose')) return 'build'
+
+  // Configuration & Dependencies
+  // Package managers
+  if (
+    filename === 'package.json' ||
+    filename === 'package-lock.json' ||
+    filename === 'yarn.lock' ||
+    filename === 'pnpm-lock.yaml'
+  )
+    return 'config'
+  if (
+    filename === 'cargo.toml' ||
+    filename === 'cargo.lock' ||
+    filename === 'go.mod' ||
+    filename === 'go.sum'
+  )
+    return 'config'
+  if (
+    filename === 'requirements.txt' ||
+    filename === 'pipfile' ||
+    filename === 'pipfile.lock' ||
+    filename === 'poetry.lock' ||
+    filename === 'pyproject.toml'
+  )
+    return 'config'
+  if (filename === 'gemfile' || filename === 'gemfile.lock') return 'config'
+  if (filename === 'composer.json' || filename === 'composer.lock')
+    return 'config'
+
+  // Config files
+  if (
+    filename.includes('.config.') ||
+    (filename.startsWith('.') && !filename.endsWith('.md')) ||
+    filename.endsWith('rc')
+  )
+    return 'config'
+  if (
+    p.includes('/config/') ||
+    p.includes('/configs/') ||
+    p.includes('/settings/')
+  )
+    return 'config'
+  if (filename.includes('.env') || filename === 'environment') return 'config'
+
+  // Only classify as config if in obvious config locations or specific names
+  if (
+    filename === 'tsconfig.json' ||
+    filename === 'jsconfig.json' ||
+    filename.endsWith('.config.json') ||
+    filename.endsWith('.config.yaml') ||
+    filename.endsWith('.config.yml') ||
+    filename.endsWith('.config.toml')
+  )
+    return 'config'
+
+  // Documentation
+  if (p.startsWith('docs/') || p.startsWith('doc/')) return 'docs'
+  if (
+    p.endsWith('.md') ||
+    p.endsWith('.mdx') ||
+    p.endsWith('.txt') ||
+    p.endsWith('.rst')
+  )
+    return 'docs'
+  if (
+    filename === 'readme' ||
+    filename === 'changelog' ||
+    filename === 'license'
+  )
+    return 'docs'
+
+  // Tests
+  if (
+    p.includes('/test/') ||
+    p.includes('/tests/') ||
+    p.includes('/__tests__/')
+  )
+    return 'tests'
+  if (p.includes('.test.') || p.includes('.spec.') || p.includes('_test.'))
+    return 'tests'
+  if (p.includes('/e2e/') || p.includes('/integration/')) return 'tests'
+  if (filename === 'jest.config.js' || filename === 'vitest.config.js')
+    return 'tests'
+
+  // Styles
+  if (
+    p.endsWith('.css') ||
+    p.endsWith('.scss') ||
+    p.endsWith('.sass') ||
+    p.endsWith('.less')
+  )
+    return 'styles'
+  if (p.includes('/styles/') || p.includes('/css/')) return 'styles'
+
+  // Default: code (source files)
+  return 'code'
+}
+
+/* todo
+if (isCI(p, filename)) return 'ci'
+if (isBuild(p, filename)) return 'build'
+if (isConfig(p, filename)) return 'config'
+if (isDocs(p, filename)) return 'docs'
+if (isTests(p, filename)) return 'tests'
+if (isStyles(p, filename)) return 'styles'
+return 'code'
+
+*/
 
 export function detectChangeCategory(
   stagedFiles: FileStatus[]
 ): ChangeCategory {
   if (stagedFiles.length === 0) return 'chore'
 
-  const hasCode = stagedFiles.some((f) => {
-    const path = f.path.replace(/\\/g, '/')
-    return (
-      path.startsWith('src/') ||
-      path.startsWith('lib/') ||
-      path.startsWith('app/') ||
-      path.startsWith('packages/') ||
-      path.startsWith('package/') ||
-      path.startsWith('pkg/') ||
-      path.startsWith('cli/') ||
-      path.startsWith('cmd/') ||
-      path.startsWith('core/') ||
-      path.startsWith('internal/') ||
-      path.startsWith('components/') ||
-      path.startsWith('utils/') ||
-      path.startsWith('helpers/') ||
-      path.startsWith('services/') ||
-      path.startsWith('api/') ||
-      path.startsWith('controllers/') ||
-      path.startsWith('models/') ||
-      path.startsWith('views/') ||
-      path.startsWith('routes/') ||
-      path.startsWith('middleware/')
-      // // File extensions for source code
-      // /\.(ts|tsx|js|jsx|py|go|rs|java|cpp|c|h|hpp|cs|php|rb|kt|swift|scala|clj)$/.test(
-      //   path
-      // )
-    )
-  })
+  const counts = new Map<ChangeCategory, number>()
 
-  if (hasCode) return 'code'
+  for (const file of stagedFiles) {
+    const category = classifyFile(file.path)
+    counts.set(category, (counts.get(category) ?? 0) + 1)
+  }
 
-  const hasTests = stagedFiles.some((f) => {
-    const path = f.path.replace(/\\/g, '/')
-    return (
-      path.startsWith('tests/') ||
-      path.startsWith('test/') ||
-      path.startsWith('__tests__/') ||
-      path.startsWith('e2e/') ||
-      path.startsWith('integration/') ||
-      path.startsWith('unit/') ||
-      path.includes('.test.') ||
-      path.includes('.spec.') ||
-      path.includes('_test.') ||
-      path.includes('Test.') ||
-      path.includes('Spec.')
-    )
-  })
+  return pickDominantCategory(counts, stagedFiles.length)
+}
 
-  if (hasTests) return 'tests'
+function pickDominantCategory(
+  counts: Map<ChangeCategory, number>,
+  totalFiles: number
+): ChangeCategory {
+  if (counts.size === 0) return 'chore'
 
-  const hasDocs = stagedFiles.some((f) => {
-    const path = f.path.replace(/\\/g, '/')
-    return (
-      path.startsWith('docs/') ||
-      path.startsWith('documentation/') ||
-      path.endsWith('.md') ||
-      path.endsWith('.mdx') ||
-      path.endsWith('.rst') ||
-      path.endsWith('.txt') ||
-      path.includes('README') ||
-      path.includes('CHANGELOG') ||
-      path.includes('CONTRIBUTING') ||
-      path.includes('LICENSE')
-    )
-  })
+  // Single category? Use it
+  if (counts.size === 1) {
+    const [[category]] = counts
+    return category
+  }
 
-  if (hasDocs) return 'docs'
+  const entries = [...counts.entries()]
 
-  const hasCI = stagedFiles.some((f) => {
-    const path = f.path.replace(/\\/g, '/')
-    return (
-      path.startsWith('.github/') ||
-      path.startsWith('.gitlab/') ||
-      path.startsWith('.circleci/') ||
-      path.startsWith('.travis/') ||
-      path.startsWith('.azure/') ||
-      path.startsWith('jenkins/') ||
-      path.includes('Jenkinsfile') ||
-      path.includes('.travis.yml') ||
-      path.includes('azure-pipelines') ||
-      path.includes('gitlab-ci')
-    )
-  })
+  // High-priority categories win if they represent significant portion
+  const highPriorityThreshold = 0.3 // 30% of files
 
-  if (hasCI) return 'ci'
+  for (const category of CATEGORY_PRIORITY.slice().reverse()) {
+    const count = counts.get(category)
+    if (count && count / totalFiles >= highPriorityThreshold) {
+      return category
+    }
+  }
 
-  const hasConfig = stagedFiles.some((f) => {
-    const path = f.path.replace(/\\/g, '/')
-    return (
-      path.includes('package.json') ||
-      path.includes('package-lock.json') ||
-      path.includes('yarn.lock') ||
-      path.includes('pnpm-lock.yaml') ||
-      path.includes('go.mod') ||
-      path.includes('go.sum') ||
-      path.includes('Cargo.toml') ||
-      path.includes('Cargo.lock') ||
-      path.includes('pyproject.toml') ||
-      path.includes('poetry.lock') ||
-      path.includes('requirements.txt') ||
-      path.includes('Pipfile') ||
-      path.includes('Gemfile') ||
-      path.includes('build.gradle') ||
-      path.includes('pom.xml') ||
-      path.includes('tsconfig.json') ||
-      path.includes('jsconfig.json') ||
-      path.includes('.eslintrc') ||
-      path.includes('.prettierrc') ||
-      path.includes('.babelrc') ||
-      path.includes('webpack.config') ||
-      path.includes('vite.config') ||
-      path.includes('rollup.config') ||
-      path.includes('.env') ||
-      path.includes('.config.') ||
-      path.startsWith('config/')
-    )
-  })
+  // Otherwise, pick most common
+  const [topCategory, topCount] = entries.sort((a, b) => b[1] - a[1])[0]
 
-  if (hasConfig) return 'config'
+  // If highly fragmented (no category has >25% of files) → chore
+  if (topCount / totalFiles < 0.25 && entries.length > 3) {
+    return 'chore'
+  }
 
-  const hasBuild = stagedFiles.some((f) => {
-    const path = f.path.replace(/\\/g, '/').toLowerCase()
-    return (
-      path.includes('docker') ||
-      path.includes('makefile') ||
-      path.includes('dockerfile') ||
-      path.includes('.dockerfile') ||
-      path.includes('docker-compose') ||
-      path.startsWith('build/') ||
-      path.startsWith('dist/') ||
-      path.includes('webpack') ||
-      path.includes('vite') ||
-      path.includes('rollup') ||
-      path.includes('esbuild') ||
-      path.includes('gulpfile') ||
-      path.includes('gruntfile')
-    )
-  })
-
-  if (hasBuild) return 'build'
-
-  return 'chore'
+  return topCategory
 }
 
 export function mapChangeCategoryToCommitType(changeCategory: string): string {
