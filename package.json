@@ -1,9 +1,12 @@
 {
   "name": "git-msg",
   "version": "0.1.0",
-  "description": "A Git-native CLI that suggests, conventional commit messages from staged changes.",
+  "description": "A Git-native CLI that suggests conventional commit messages from staged changes.",
   "type": "module",
   "main": "./dist/index.js",
+  "exports": {
+    ".": "./dist/index.js"
+  },
   "bin": {
     "git-msg": "./dist/index.js"
   },
@@ -15,8 +18,7 @@
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "prepublishOnly": "npm run build",
-    "postbuild": "chmod +x dist/index.js"
+    "prepublishOnly": "npm run build"
   },
   "files": [
     "dist",
