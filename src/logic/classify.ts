@@ -1,6 +1,5 @@
 // src/analyze/classify.ts
 
-import { count } from 'node:console'
 import { FileStatus, StagedStats } from '../git/files.js'
 
 /*
@@ -313,11 +312,11 @@ export type ObjectSuffix =
   | 'config'
   | 'system'
   | 'tests'
-  | 'components' // React/Vue components
-  | 'styles' // CSS/SCSS files
-  | 'hooks' // React hooks
-  | 'types' // TypeScript types
-  | 'schemas' // Validation schemas
+  | 'components'
+  | 'styles'
+  | 'hooks'
+  | 'types'
+  | 'schemas'
   | null
 
 const DOMAIN_SUFFIX_MAP: Record<string, ObjectSuffix> = {
