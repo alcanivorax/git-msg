@@ -1,218 +1,170 @@
 # git-msg
 
-<br />
+A Git-native CLI that suggests conventional commit messages from staged changes.
 
-> A Git‑native commit message prompt that feels like a natural part of your workflow.
+`git-msg` removes the pause before `git commit`. It shows a clear, editable commit message based on what you staged, then lets you use it, edit it, or cancel — instantly.
 
-`git-msg` makes writing good commit messages the default. It removes the awkward pause during `git commit` by showing a clear, conventional message you can **use, edit, or cancel** instantly — without breaking flow.
+No AI. No editors. No config.
 
-No AI. No editors. No config hell.
-
----
-
-<br />
-
-**Good commit messages don’t happen by accident.**  
-**git-msg makes them the default.**
-
----
-
-<br />
+<br>
 
 ## Why git-msg exists
 
-Most bad commit messages aren’t written out of laziness — they’re written because the developer has **no starting thought**.
+Most bad commit messages aren't written out of laziness — they're written because there's no obvious starting point.
 
 ```bash
 git commit -m "..."
 ```
 
-`git-msg` fixes that by:
+`git-msg` fixes that by giving you a reasonable default:
 
-- analyzing **what changed** (paths, file status, magnitude)
-- suggesting a **clear, conventional commit message idea**
-- letting the **developer stay in control**
+- looks at what changed
+- suggests a conventional commit message
+- keeps the developer in control
 
-It doesn’t replace thinking — it removes friction so thinking happens.
+It doesn't decide for you — it removes friction.
 
----
+<br>
 
-<br />
+## What it is (and isn't)
 
-## What git-msg is (and isn’t)
+### ✅ It is
 
-### ✅ git-msg is
-
-- a commit _idea generator_
-- a habit‑builder for better commit messages
+- a commit message idea generator
 - fast, deterministic, and explainable
-- language‑agnostic
+- language-agnostic
 - editable by default
 
-### ❌ git-msg is not
+### ❌ It is not
 
 - an AI tool
 - a diff / AST analyzer
-- a rule engine or DSL
-- a replacement for human intent
+- a rules engine
+- a replacement for intent
 
----
+<br>
 
-<br />
+## Commit message format
 
-## Commit message grammar
+All suggestions follow:
 
-All suggestions follow this shape:
-
-```
+```bash
 <type>: <verb> <object> [qualifier]
 ```
 
 Examples:
 
-```
+```bash
 feat: add auth module
 fix: handle empty config
-refactor: simplify commit flow
-docs: clarify setup instructions
+refactor: update commit flow
+docs: update setup instructions
 chore: update build config
 ```
 
-This keeps messages:
+Consistent, readable, easy to tweak.
 
-- readable
-- consistent
-- easy to edit
-
----
-
-<br />
+<br>
 
 ## Usage
 
-Stage your changes as usual:
+Stage changes as usual:
 
 ```bash
 git add .
 ```
 
-Then run:
+Run:
 
 ```bash
 git msg
 ```
 
-You’ll see something like:
+You'll see:
 
-```
+```bash
 Suggested commit message:
 feat: update auth logic
 
 [e]dit / [u]se / [c]ancel
 ```
 
-<br />
+### Actions
 
-### Options
+- `u` — commit immediately
+- `e` — edit inline, then commit
+- `c` — abort
 
-- **`u`** — commit immediately
-- **`e`** — edit inline, then auto‑commit
-- **`c`** — abort
+No editor. No prompts. No Enter for the choice.
 
-No Enter required for the choice.
-
----
-
-<br />
+<br>
 
 ## Inline editing (no editor)
 
-Choosing **edit** opens a single‑line inline prompt:
+Choosing edit opens a single-line prompt:
 
-```
+```bash
 Edit commit message:
 > feat: update auth logic
 ```
 
-- edit like a shell prompt
-- press **Enter** to commit
-- **Ctrl+C** to abort
+- edit like a shell input
+- Enter to commit
+- Ctrl+C to cancel
 
 No vim. No nano. No `$EDITOR`.
 
----
+<br>
 
-<br />
+## How suggestions are generated
 
-## How git-msg decides the suggestion
-
-`git-msg` uses **safe, structural signals only**:
+`git-msg` uses structural signals only:
 
 - file status (`A`, `M`, `D`, `R`)
 - file paths
-- change magnitude (rough size)
+- rough change size
 
 It intentionally avoids:
 
-- full diff analysis
-- AST parsing
-- language‑specific logic
+- diff or AST analysis
+- language-specific logic
 - semantic guessing
 
-This keeps suggestions:
+When unsure, it prefers being generic rather than wrong.
 
-- fast
-- predictable
-- easy to override
-
-When unsure, `git-msg` prefers being **generic rather than wrong**.
-
----
-
-<br />
+<br>
 
 ## Supported projects
 
-`git-msg` is **language‑agnostic**.
-
-It works equally well for:
+Language-agnostic. Works well for:
 
 - JavaScript / TypeScript
 - Go
 - Python
 - Rust
 - Java
-- mixed or monorepos
+- monorepos and mixed codebases
 
-The tool cares about **structure and intent**, not languages.
+Structure matters — language doesn't.
 
----
-
-<br />
+<br>
 
 ## Philosophy
 
-> git-msg doesn’t force you to write good commit messages.
-> It makes writing bad ones uncomfortable.
+**git-msg doesn't force good commit messages. It makes bad ones uncomfortable.**
 
-The goal is not perfection — it’s **clarity by default**.
+The goal isn't perfection — it's clarity by default.
 
----
-
-<br />
+<br>
 
 ## Status
 
-- v0.1 — heuristic‑based core
+- v0.1 — heuristic-based core
 - no AI
 - no config
-- focused on daily use
+- built for daily use
 
-Future versions may refine heuristics, but the core philosophy will stay the same.
-
----
-
-<br />
+<br>
 
 ## License
 
