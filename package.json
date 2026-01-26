@@ -8,7 +8,7 @@
     ".": "./dist/index.js"
   },
   "bin": {
-    "git-msg": "./dist/index.js"
+    "git-msg": "dist/index.js"
   },
   "scripts": {
     "dev": "tsx src/index.ts",
