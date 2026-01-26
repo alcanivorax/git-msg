@@ -7,18 +7,18 @@ function printVersion(): void {
 
 function printHelp(): void {
   console.log(`
-git-msg — generate conventional commit messages
+git-msg — generate conventional commit messages from staged changes
 
 Usage:
   git msg [options]
 
 Options:
-  -h, help          Show help
-  -v, --version     Show version
+  -h, --help, help        Show help
+  -v, --version, version  Show version
 
 Description:
-  Run inside a git repository with staged changes
-  to generate a conventional commit message.
+  Analyze staged files in a git repository and
+  generate a conventional commit message automatically.
 `)
 }
 
