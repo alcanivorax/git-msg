@@ -1,5 +1,6 @@
 // src/analyze/classify.ts
 
+import { count } from 'node:console'
 import { FileStatus, StagedStats } from '../git/files.js'
 
 /*
@@ -278,24 +279,28 @@ export function detectCommitVerb(
 */
 
 export function detectCommitObject(stagedFiles: FileStatus[]): string {
-  if (stagedFiles.length === 0) return 'project' // Guard against empty input
+  if (stagedFiles.length === 0) return 'project' // guard
 
   const paths = stagedFiles.map((f) => f.path.replace(/\\/g, '/'))
 
+  // Single file → still try domain first, fallback to filename
   if (paths.length === 1) {
-    return humanizeFile(paths[0])
+    const domain = extractMeaningfulDir(paths[0])
+    return domain ? applyObjectSuffix(domain) : humanizeFile(paths[0])
   }
 
-  const domains = paths.map(extractMeaningfulDir).filter(Boolean)
+  const domains = paths
+    .map(extractMeaningfulDir)
+    .filter((d): d is string => Boolean(d))
 
-  // If no meaningful directories found, fall back early
+  // No meaningful domains → project-level change
   if (domains.length === 0) return 'project'
 
   const counts = superCount(domains)
   const [top, freq] = mostCommon(counts)
 
-  // Majority threshold: 60% of files in same domain
-  if (top && freq / paths.length >= 0.6) {
+  // Majority threshold: 60% of meaningful domains
+  if (top && freq / domains.length >= 0.6) {
     return applyObjectSuffix(top)
   }
 
@@ -372,20 +377,17 @@ export function applyObjectSuffix(domain: string): string {
   const normalized = domain.toLowerCase()
   const suffix = DOMAIN_SUFFIX_MAP[normalized]
 
-  // No suffix needed (standalone domains)
+  // Standalone domains
   if (suffix === null) return domain
 
-  // Avoid redundancy: "tests tests" → "tests"
+  // Avoid "tests tests"
   if (suffix && domain.endsWith(suffix)) return domain
 
-  // Special case: pluralization check
-  const singularSuffix = suffix?.replace(/s$/, '')
-  if (singularSuffix && domain.endsWith(singularSuffix)) {
-    return domain // e.g., "component" with suffix "components"
-  }
+  // Avoid "component components"
+  const singular = suffix?.replace(/s$/, '')
+  if (singular && domain.endsWith(singular)) return domain
 
-  // Apply suffix or default to "module"
-  return suffix ? `${domain} ${suffix}` : `${domain} module`
+  return `${domain} ${suffix ?? 'module'}`
 }
 
 export function superCount<T>(values: T[]): Map<T, number> {
@@ -447,12 +449,16 @@ const GENERIC_DIRS = new Set([
 
 export function extractMeaningfulDir(filePath: string): string | null {
   const normalized = filePath.replace(/\\/g, '/')
-  const parts = normalized.split('/').filter(Boolean) // Remove empty strings upfront
+  const parts = normalized.split('/').filter(Boolean)
 
-  for (const part of parts) {
-    if (part.startsWith('.')) continue // Skip hidden dirs
-    if (GENERIC_DIRS.has(part)) continue // Skip generic dirs
-    if (part.includes('.')) break // Stop at filename
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i]
+
+    if (part.startsWith('.')) continue
+    if (GENERIC_DIRS.has(part)) continue
+
+    // Stop only if this is the filename
+    if (i === parts.length - 1 && part.includes('.')) break
 
     return part.toLowerCase()
   }
@@ -460,7 +466,7 @@ export function extractMeaningfulDir(filePath: string): string | null {
   return null
 }
 
-// todo: future addition
+// todo: future addition (maybe)
 /*
 
 fallback
@@ -490,27 +496,14 @@ export function detectCommitQualifier(
 ): string | null {
   const paths = stagedFiles.map((f) => f.path.replace(/\\/g, '/').toLowerCase())
 
-  // CI / Infra
-  if (paths.some((p) => p.startsWith('.github/workflows'))) {
-    return 'for ci'
-  }
-
-  // Environment-specific
-  if (paths.some((p) => p.includes('production') || p.includes('prod'))) {
-    return 'for production'
-  }
-
-  if (paths.some((p) => p.includes('staging'))) {
-    return 'for staging'
-  }
-
-  if (paths.some((p) => p.includes('development') || p.includes('dev'))) {
-    return 'for development'
+  // Environment-related files (broad)
+  if (paths.some((p) => p.includes('.env'))) {
+    return 'for environment'
   }
 
   // Large, cross-cutting change
-  if (stats.files > 10) {
-    return 'across project'
+  if (stats.files >= 10) {
+    return 'project-wide'
   }
 
   return null

@@ -1,16 +1,9 @@
 {
   "name": "git-msg",
   "version": "0.1.0",
-  "description": "A Git-native CLI that suggests accurate, conventional commit messages from staged changes.",
+  "description": "A Git-native CLI that suggests, conventional commit messages from staged changes.",
   "type": "module",
   "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    }
-  },
   "bin": {
     "git-msg": "./dist/index.js"
   },
