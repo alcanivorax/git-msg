@@ -1,5 +1,5 @@
 {
-  "name": "git-msg",
+  "name": "@alcanivorax/git-msg",
   "version": "0.1.0",
   "description": "A Git-native CLI that suggests conventional commit messages from staged changes.",
   "type": "module",
