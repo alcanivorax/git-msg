@@ -2,7 +2,7 @@ import pkg from '../../package.json' with { type: 'json' }
 import { args } from './args.js'
 
 function printVersion(): void {
-  console.log(`${pkg.name} version ${pkg.version}`)
+  console.log(`git-msg version ${pkg.version}`)
 }
 
 function printHelp(): void {
