@@ -17,6 +17,7 @@
   "scripts": {
     "dev": "tsx src/index.ts",
     "build": "tsc",
+    "typecheck": "tsc --noEmit",
     "test": "vitest",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
