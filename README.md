@@ -1,6 +1,22 @@
-# git-msg
+<h1 align="center">git-msg</h1>
 
-A Git-native CLI that suggests conventional commit messages from staged changes.
+<br />
+
+<p align="center">
+ <img
+    src="https://raw.githubusercontent.com/alcanivorax/git-msg/main/assets/git-msg-preview.gif"
+    alt="git-msg demo"
+    width="900"
+  />
+</p>
+
+<br />
+
+<p align="center">
+  A Git-native CLI that suggests conventional commit messages from staged changes.
+</p>
+
+<br />
 
 `git-msg` removes the pause before `git commit`. It shows a clear, editable commit message based on what you staged, then lets you use it, edit it, or cancel — instantly.
 
