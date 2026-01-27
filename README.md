@@ -84,6 +84,12 @@ Consistent, readable, easy to tweak.
 
 ## Usage
 
+Install:
+
+```bash
+npm i -g @alcanivorax/git-msg
+```
+
 Stage changes as usual:
 
 ```bash
