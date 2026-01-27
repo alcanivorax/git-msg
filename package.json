@@ -4,11 +4,15 @@
   "description": "A Git-native CLI that suggests conventional commit messages from staged changes.",
   "type": "module",
   "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./dist/index.js"
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
   },
   "bin": {
-    "git-msg": "dist/index.js"
+    "git-msg": "./dist/index.js"
   },
   "scripts": {
     "dev": "tsx src/index.ts",
@@ -18,7 +22,8 @@
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "postbuild": "chmod +x dist/index.js"
   },
   "files": [
     "dist",
