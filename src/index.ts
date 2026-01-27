@@ -6,13 +6,11 @@ import {
   getStagedFileMagnitude,
   getStagedFilesWithStatus,
 } from './git/files.js'
-import {
-  detectChangeCategory,
-  detectCommitObject,
-  detectCommitQualifier,
-  detectCommitVerb,
-  mapChangeCategoryToCommitType,
-} from './logic/classify.js'
+import { detectChangeCategory } from './logic/classify/type.js'
+import { mapChangeCategoryToCommitType } from './logic/classify/type.js'
+import { detectCommitVerb } from './logic/classify/verb.js'
+import { detectCommitObject } from './logic/classify/object.js'
+import { detectCommitQualifier } from './logic/classify/qualifier.js'
 import { generateCommitSubject } from './logic/message.js'
 import { listenForChoice } from './output/print.js'
 
