@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { detectCommitVerb } from '../classify.js'
+import { detectCommitVerb } from '../classify/verb.js'
 
 const stats = (insertions = 0, deletions = 0) => ({
   insertions,
