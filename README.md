@@ -1,128 +1,122 @@
 <h1 align="center">git-msg</h1>
 
-<br />
-
 <p align="center">
- <img
+  <img
     src="https://raw.githubusercontent.com/alcanivorax/git-msg/main/assets/git-msg-preview.gif"
     alt="git-msg demo"
     width="900"
   />
 </p>
 
-<br />
-
 <p align="center">
   A Git-native CLI that suggests conventional commit messages from staged changes.
 </p>
 
-<br />
+---
 
-`git-msg` removes the pause before `git commit`. It shows a clear, editable commit message based on what you staged, then lets you use it, edit it, or cancel — instantly.
+`git-msg` removes the pause before `git commit`. Stage your changes, run `git msg`, and get a clear commit message you can use, edit, or cancel — without leaving the terminal.
 
-No AI. No editors. No config.
+No AI. No config. No editor.
 
-<br>
-
-<br>
-
-## Usage
-
-Install:
+## Install
 
 ```bash
 npm i -g @alcanivorax/git-msg
 ```
 
-Stage changes as usual:
+## Usage
+
+Stage your changes as usual, then run:
 
 ```bash
 git add .
-```
-
-Run:
-
-```bash
 git msg
 ```
 
-You'll see:
+You'll see something like:
 
-```bash
+```
 Suggested commit message:
-feat: update auth module
 
-[e]dit / [u]se / [c]ancel
+  feat(auth): add user authentication
+
+[e]dit  [u]se  [c]ancel
 ```
 
-<br>
+Press a single key — no Enter required.
 
-### Actions
+| Key | Action                               |
+| --- | ------------------------------------ |
+| `u` | Commit with the suggested message    |
+| `e` | Edit the message inline, then commit |
+| `c` | Abort                                |
 
-- `u` — commit immediately
-- `e` — edit inline, then commit
-- `c` — abort
+## Inline editing
 
-No editor. No prompts. No Enter for the choice.
+Pressing `e` opens a prompt with the message pre-filled:
 
-<br>
-
-## Inline editing (no editor)
-
-Choosing edit opens a single-line prompt:
-
-```bash
+```
 Edit commit message:
-> feat: update auth module
+> feat(auth): add user authentication
 ```
 
-- edit like a shell input
-- Enter to commit
-- Ctrl+C to cancel
+Edit it like any shell input. `Enter` commits. `Ctrl+C` cancels. No vim, no `$EDITOR`.
 
-No vim. No nano. No `$EDITOR`.
+## Message format
 
-<br>
+Suggestions follow the [Conventional Commits](https://www.conventionalcommits.org/) format:
 
-## Commit message format
-
-All suggestions follow:
-
-```bash
-<type>: <verb> <object> [qualifier]
+```
+<type>(<scope>): <verb> <object>
 ```
 
-Examples:
+The scope is included when the staged files share a clear module or directory. It is omitted when changes span multiple unrelated areas.
 
-```bash
-feat: add auth module
-fix: handle empty config
-refactor: update commit flow
-docs: update setup instructions
-chore: update build config
+**Examples:**
+
+```
+feat(auth): add user authentication
+fix(api): handle null response in user validation
+feat(auth): implement JWT token refresh
+refactor: remove legacy payment module
+test(auth): add login flow tests
+chore: update eslint config
+docs: update contributing guide
+ci: update node version matrix
 ```
 
-Consistent, readable, easy to tweak.
+## How messages are generated
 
-<br>
+`git-msg` reads your staged changeset and derives the message from three sources:
 
-## How suggestions are generated
+**File metadata**
 
-`git-msg` uses structural signals only:
+- Git status codes (`A`, `M`, `D`, `R`, `C`) determine the verb — `add`, `remove`, `rename`, etc.
+- File paths determine the scope and object — `src/auth/login.ts` → scope `auth`
+- Change size (insertions vs. deletions) refines the verb for modification-only changes
 
-- file status (`A`, `M`, `D`, `R`)
-- file paths
-- rough change size
+**Diff content**
 
-It intentionally avoids:
+- Newly declared symbols (functions, classes, types, interfaces) are extracted and used as the commit object — `validateUserEmail` → `user email`
+- Fix/error keywords in added lines (`error`, `bug`, `crash`, `invalid`, etc.) promote the type to `fix`
+- Test framework patterns (`describe`, `it`, `expect`) promote the type to `test`
+- New package imports are detected for context
 
-- diff or AST analysis
-- language-specific logic
-- semantic guessing
+**Classification**
 
-When unsure, it prefers being generic rather than wrong.
+- Files are classified into categories (code, tests, docs, config, build, ci, styles) and the dominant category maps to a commit type
+- When signals conflict, higher-confidence signals win — fix patterns beat a generic `feat`, all-deletes become `refactor`
 
-<br>
+No AI. No AST parsing. No network calls. The tool runs entirely offline and produces a deterministic result for a given set of staged files.
+
+## Options
+
+```
+git msg [options]
+
+  -h, --help     Show help
+  -v, --version  Show version
+```
 
 ## License
 

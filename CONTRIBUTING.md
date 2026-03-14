@@ -1,14 +1,12 @@
 # Contributing
 
-Thanks for your interest in contributing to `git-msg`.
+This document covers everything you need to get the project running locally and make a change.
 
-This project favors small, focused changes and predictable behavior.
+---
 
-<br>
+## Setup
 
-## Getting started
-
-Fork the repository and clone your fork:
+Fork the repository, then clone your fork:
 
 ```bash
 git clone https://github.com/<your-username>/git-msg.git
@@ -21,47 +19,88 @@ Install dependencies:
 pnpm install
 ```
 
-Build the project:
+---
+
+## Development
+
+Run the CLI directly against your local staged changes (no build step needed):
 
 ```bash
-pnpm build
+pnpm dev
 ```
 
-Link the CLI locally:
+This uses `tsx` to run `src/index.ts` directly, so changes are reflected immediately.
+
+---
+
+## Commands
+
+| Command             | What it does                                             |
+| ------------------- | -------------------------------------------------------- |
+| `pnpm dev`          | Run the CLI from source against your actual staged files |
+| `pnpm build`        | Compile TypeScript to `dist/`                            |
+| `pnpm typecheck`    | Type-check without emitting output                       |
+| `pnpm test`         | Run the test suite once                                  |
+| `pnpm test:watch`   | Run tests in watch mode                                  |
+| `pnpm lint`         | Lint all source files                                    |
+| `pnpm lint:fix`     | Lint and auto-fix                                        |
+| `pnpm format`       | Format all files with Prettier                           |
+| `pnpm format:check` | Check formatting without writing                         |
+
+Before opening a PR, make sure all of these pass cleanly:
 
 ```bash
-npm link
+pnpm typecheck && pnpm lint && pnpm format:check && pnpm test
 ```
 
-You can now run:
+---
 
-```bash
-git msg
+## Project structure
+
+```
+src/
+├── index.ts              Entry point — wires the pipeline together
+├── cli/
+│   ├── args.ts           Raw process.argv slice
+│   └── flags.ts          --help / --version handling
+├── git/
+│   ├── repo.ts           Git repo validation guards
+│   ├── staged.ts         Query staged files, stats, and raw diff
+│   └── commit.ts         Execute git commit -m
+├── analysis/
+│   ├── categories.ts     Classify file paths into change categories
+│   ├── diff.ts           Parse raw diff — extract symbols, fix patterns, imports
+│   ├── scope.ts          Detect commit scope from file paths
+│   └── signals.ts        Aggregate everything into CommitSignals
+├── message/
+│   ├── type.ts           Select the commit type (feat, fix, chore, …)
+│   ├── verb.ts           Select the verb (add, fix, refactor, …)
+│   ├── object.ts         Select the object (user authentication, api, …)
+│   └── builder.ts        Assemble the final message string
+└── ui/
+    ├── prompt.ts         Keypress prompt (e / u / c)
+    └── editor.ts         Inline readline edit mode
 ```
 
-<br>
+All analysis feeds into a single `CommitSignals` object defined in `analysis/signals.ts`. Every message module (`type`, `verb`, `object`) reads from that one object — nothing is recomputed or passed through multiple layers of arguments.
 
-## Development notes
+---
 
-This is a deterministic, heuristic-based tool.
+## Adding or changing heuristics
 
-- Avoid adding AI, heavy configuration.
-- Keep behavior explainable and easy to override.
+Most contributions will touch one of the four message modules or the diff analyzer. A few things to keep in mind:
 
-<br>
+- **`analysis/diff.ts`** — Symbol patterns are plain regexes. If you add support for a new language, add a pattern to `SYMBOL_PATTERNS` with a comment identifying the language and what construct it matches.
+- **`message/verb.ts`** — The decision order is documented in the JSDoc comment. New signals should slot into the existing priority order rather than appending to the bottom.
+- **`message/object.ts`** — `DOMAIN_SUFFIX_MAP` controls what suffix (if any) is appended to a directory-based object. `GENERIC_WORDS` controls which single-word symbol results are considered too vague to use. Both are easy to extend.
+- **`analysis/categories.ts`** — File classification is a set of ordered pattern checks. More specific patterns should come before broader ones.
 
-## Testing
+When adding a heuristic, add a test for it in the relevant `__tests__` file. Tests use plain objects — no mocking, no fixtures — so they are easy to write.
 
-Run tests with:
+---
 
-```bash
-pnpm test
-```
+## Opening a pull request
 
-<br>
-
-## Style
-
-- Keep changes small and scoped.
-- Follow existing structure and patterns.
-- Format code before submitting a PR.
+- Keep changes focused. One logical change per PR.
+- If you're changing behavior, update the tests. If you're adding a new heuristic, add tests for both the happy path and the fallthrough case.
+- The PR description should explain what signal or problem the change addresses, not just what the code does.
