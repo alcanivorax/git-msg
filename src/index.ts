@@ -1,18 +1,12 @@
 #!/usr/bin/env node
 
-import { handleCliFlags } from './cli/options.js'
-import { ensureGitRepo, ensureStagedChanges } from './git/status.js'
-import {
-  getStagedFileMagnitude,
-  getStagedFilesWithStatus,
-} from './git/files.js'
-import { detectChangeCategory } from './logic/classify/type.js'
-import { mapChangeCategoryToCommitType } from './logic/classify/type.js'
-import { detectCommitVerb } from './logic/classify/verb.js'
-import { detectCommitObject } from './logic/classify/object.js'
-import { detectCommitQualifier } from './logic/classify/qualifier.js'
-import { generateCommitSubject } from './logic/message.js'
-import { listenForChoice } from './output/print.js'
+import { handleCliFlags } from './cli/flags.js'
+import { ensureGitRepo, ensureStagedChanges } from './git/repo.js'
+import { getStagedFiles, getStagedStats, getStagedDiff } from './git/staged.js'
+import { analyzeDiff } from './analysis/diff.js'
+import { gatherSignals } from './analysis/signals.js'
+import { buildCommitMessage } from './message/builder.js'
+import { showPrompt } from './ui/prompt.js'
 
 async function main(): Promise<void> {
   handleCliFlags()
@@ -20,28 +14,13 @@ async function main(): Promise<void> {
   ensureGitRepo()
   ensureStagedChanges()
 
-  const stagedFiles = getStagedFilesWithStatus()
+  const files = getStagedFiles()
+  const stats = getStagedStats()
+  const diff = analyzeDiff(getStagedDiff())
+  const signals = gatherSignals(files, stats, diff)
+  const message = buildCommitMessage(signals)
 
-  const stagedFileStats = getStagedFileMagnitude()
-
-  const changeCategory = detectChangeCategory(stagedFiles)
-
-  const commitType = mapChangeCategoryToCommitType(changeCategory)
-
-  const commitVerb = detectCommitVerb(stagedFiles, stagedFileStats)
-
-  const commitObject = detectCommitObject(stagedFiles)
-
-  const commitQualifier = detectCommitQualifier(stagedFiles, stagedFileStats)
-
-  const subject = generateCommitSubject(
-    commitType,
-    commitVerb,
-    commitObject,
-    commitQualifier
-  )
-
-  await listenForChoice(subject)
+  await showPrompt(message)
 }
 
 await main()

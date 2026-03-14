@@ -18,12 +18,13 @@
     "dev": "tsx src/index.ts",
     "build": "tsc",
     "typecheck": "tsc --noEmit",
-    "test": "vitest",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "prepublishOnly": "npm run build",
+    "prepublishOnly": "pnpm run build",
     "postbuild": "chmod +x dist/index.js"
   },
   "files": [
@@ -41,9 +42,12 @@
   "keywords": [
     "git",
     "commit",
-    "cli",
+    "git-commit",
+    "commit-message",
     "conventional-commits",
-    "developer-tools"
+    "cli",
+    "developer-tools",
+    "productivity"
   ],
   "author": "alcanivorax",
   "license": "MIT",
